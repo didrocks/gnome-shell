@@ -684,7 +684,7 @@ var LayoutManager = new Lang.Class({
     },
 
     showKeyboard: function () {
-        Tweener.addTween(this.keyboardBox,
+          Tweener.addTween(this.keyboardBox,
                          { anchor_y: this.keyboardBox.height,
                            time: KEYBOARD_ANIMATION_TIME,
                            transition: 'easeOutQuad',
