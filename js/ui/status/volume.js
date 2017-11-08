@@ -14,6 +14,8 @@ const Slider = imports.ui.slider;
 
 var VOLUME_NOTIFY_ID = 1;
 
+const ALLOW_AMPLIFIED_VOLUME_KEY = 'allow-amplified-volume';
+
 // Each Gvc.MixerControl is a connection to PulseAudio,
 // so it's better to make it a singleton
 let _mixerControl;
@@ -36,6 +38,11 @@ var StreamSlider = new Lang.Class({
         this.item = new PopupMenu.PopupBaseMenuItem({ activate: false });
 
         this._slider = new Slider.Slider(0);
+
+        this._soundSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.sound' });
+        this._soundSettings.connect('changed::' + ALLOW_AMPLIFIED_VOLUME_KEY, Lang.bind(this, this._amplifySettingsChanged));
+        this._amplifySettingsChanged();
+
         this._slider.connect('value-changed', Lang.bind(this, this._sliderChanged));
         this._slider.connect('drag-end', Lang.bind(this, this._notifyVolumeChange));
 
@@ -103,11 +110,18 @@ var StreamSlider = new Lang.Class({
         this._slider.setValue(value);
     },
 
+    _get_control_max_volume: function() {
+        if (this._allow_amplified_volume) {
+            return this._control.get_vol_max_amplified();
+        }
+        return this._control.get_vol_max_norm();
+    },
+
     _sliderChanged: function(slider, value, property) {
         if (!this._stream)
             return;
 
-        let volume = value * this._control.get_vol_max_norm();
+        let volume = value * this._get_control_max_volume();
         let prevMuted = this._stream.is_muted;
         if (volume < 1) {
             this._stream.volume = 0;
@@ -131,8 +145,20 @@ var StreamSlider = new Lang.Class({
 
     _updateVolume: function() {
         let muted = this._stream.is_muted;
-        this._slider.setValue(muted ? 0 : (this._stream.volume / this._control.get_vol_max_norm()));
+        this._slider.setValue(muted ? 0 : (this._stream.volume / this._get_control_max_volume()));
         this.emit('stream-updated');
+    },
+
+    _amplifySettingsChanged: function() {
+        this._allow_amplified_volume = this._soundSettings.get_boolean(ALLOW_AMPLIFIED_VOLUME_KEY)
+
+        if (this._allow_amplified_volume)
+            this._slider.setOverrideValue(this.getOverrideLevel() / 100);
+        else
+            this._slider.setOverrideValue(1);
+
+        if (this._stream)
+            this._updateVolume();
     },
 
     getIcon: function() {
@@ -152,11 +178,15 @@ var StreamSlider = new Lang.Class({
         }
     },
 
+    getOverrideLevel: function () {
+        return 100 * this._control.get_vol_max_norm() / this._get_control_max_volume();
+    },
+
     getLevel: function() {
         if (!this._stream)
             return null;
 
-        return 100 * this._stream.volume / this._control.get_vol_max_norm();
+        return 100 * this._stream.volume / this._get_control_max_volume();
     }
 });
 Signals.addSignalMethods(StreamSlider.prototype);
@@ -306,6 +336,10 @@ var VolumeMenu = new Lang.Class({
 
     getIcon: function() {
         return this._output.getIcon();
+    },
+
+    getOverrideLevel: function() {
+        return this._output.getOverrideLevel();
     },
 
     getLevel: function() {
