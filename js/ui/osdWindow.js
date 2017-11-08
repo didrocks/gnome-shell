@@ -9,6 +9,7 @@ const Layout = imports.ui.layout;
 const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
 const Tweener = imports.ui.tweener;
+const Slider = imports.ui.slider;
 const Meta = imports.gi.Meta;
 
 var HIDE_TIMEOUT = 1500;
@@ -17,17 +18,12 @@ var LEVEL_ANIMATION_TIME = 0.1;
 
 var LevelBar = new Lang.Class({
     Name: 'LevelBar',
+    Extends: Slider.Slider,
 
     _init: function() {
         this._level = 0;
-
-        this.actor = new St.Bin({ style_class: 'level',
-                                  x_align: St.Align.START,
-                                  y_fill: true });
-        this._bar = new St.Widget({ style_class: 'level-bar' });
-
-        this.actor.set_child(this._bar);
-
+        this.parent(this._level, {'no_handle': true});
+        this.actor.accessible_name = _("Volume");
         this.actor.connect('notify::width', () => { this.level = this.level; });
     },
 
@@ -38,10 +34,7 @@ var LevelBar = new Lang.Class({
     set level(value) {
         this._level = Math.max(0, Math.min(value, 100));
 
-        let alloc = this.actor.get_allocation_box();
-        let newWidth = Math.round((alloc.x2 - alloc.x1) * this._level / 100);
-        if (newWidth != this._bar.width)
-            this._bar.width = newWidth;
+        this.setValue(this._level / 100);
     }
 });
 
@@ -127,6 +120,14 @@ var OsdWindow = new Lang.Class({
             this._label.text = label;
     },
 
+    setOverrideLevel: function(overrideLevel) {
+        if (overrideLevel != undefined)
+            overrideLevel = overrideLevel / 100;
+        else
+            overrideLevel = 1;
+        this._level.setOverrideValue(overrideLevel);
+    },
+
     setLevel: function(level) {
         this._level.actor.visible = (level != undefined);
         if (level != undefined) {
@@ -188,6 +189,7 @@ var OsdWindow = new Lang.Class({
     _reset: function() {
         this.actor.hide();
         this.setLabel(null);
+        this.setOverrideLevel(null);
         this.setLevel(null);
     },
 
@@ -233,24 +235,25 @@ var OsdWindowManager = new Lang.Class({
         this._osdWindows.length = Main.layoutManager.monitors.length;
     },
 
-    _showOsdWindow: function(monitorIndex, icon, label, level) {
+    _showOsdWindow: function(monitorIndex, icon, label, level, overrideLevel) {
         this._osdWindows[monitorIndex].setIcon(icon);
         this._osdWindows[monitorIndex].setLabel(label);
+        this._osdWindows[monitorIndex].setOverrideLevel(overrideLevel);
         this._osdWindows[monitorIndex].setLevel(level);
         this._osdWindows[monitorIndex].show();
     },
 
-    show: function(monitorIndex, icon, label, level) {
+    show: function(monitorIndex, icon, label, level, overrideLevel) {
         if (monitorIndex != -1) {
             for (let i = 0; i < this._osdWindows.length; i++) {
                 if (i == monitorIndex)
-                    this._showOsdWindow(i, icon, label, level);
+                    this._showOsdWindow(i, icon, label, level, overrideLevel);
                 else
                     this._osdWindows[i].cancel();
             }
         } else {
             for (let i = 0; i < this._osdWindows.length; i++)
-                this._showOsdWindow(i, icon, label, level);
+                this._showOsdWindow(i, icon, label, level, overrideLevel);
         }
     },
 

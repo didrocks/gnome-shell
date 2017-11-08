@@ -544,14 +544,12 @@ StScrollBar {
   min-height: 64px; }
   .osd-window .osd-monitor-label {
     font-size: 3em; }
-  .osd-window .level {
+  .osd-window .slider {
     height: 0.6em;
-    border-radius: 0.3em;
-    background-color: rgba(11, 12, 13, 0.5);
-    color: #eeeeec; }
-  .osd-window .level-bar {
-    background-color: #eeeeec;
-    border-radius: 0.3em; }
+    -slider-height: 0.6em;
+    -slider-background-color: rgba(11, 12, 13, 0.5);
+    -slider-active-background-color: #eeeeec;
+    -slider-border-width: 0; }
 
 /* Pad OSD */
 .pad-osd-window {
