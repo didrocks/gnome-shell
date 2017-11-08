@@ -12,7 +12,7 @@ var SLIDER_SCROLL_STEP = 0.02; /* Slider scrolling step in % */
 var Slider = new Lang.Class({
     Name: "Slider",
 
-    _init: function(value) {
+    _init: function(value, params) {
         if (isNaN(value))
             // Avoid spreading NaNs around
             throw TypeError('The slider value must be a number');
@@ -20,9 +20,14 @@ var Slider = new Lang.Class({
         this._override_value = 1;
         this._sliderWidth = 0;
 
+        if (!(params != undefined))
+            params = {};
+
+        this._hasHandle = !(params["no_handle"] || false);
+
         this.actor = new St.DrawingArea({ style_class: 'slider',
-                                          can_focus: true,
-                                          reactive: true,
+                                          can_focus: this._hasHandle,
+                                          reactive: this._hasHandle,
                                           accessible_role: Atk.Role.SLIDER });
         this.actor.connect('repaint', Lang.bind(this, this._sliderRepaint));
         this.actor.connect('button-press-event', Lang.bind(this, this._startDragging));
@@ -153,13 +158,22 @@ var Slider = new Lang.Class({
         }
 
         let handleY = height / 2;
-        Clutter.cairo_set_source_color(cr, fgColor);
-        cr.arc(handleX, handleY, handleRadius, 0, 2 * Math.PI);
-        cr.fillPreserve();
-        if (hasHandleColor && handleBorderWidth) {
-            Clutter.cairo_set_source_color(cr, handleBorderColor);
-            cr.setLineWidth(handleBorderWidth);
-            cr.stroke();
+        if (this._hasHandle) {
+            Clutter.cairo_set_source_color(cr, fgColor);
+            cr.arc(handleX, handleY, handleRadius, 0, 2 * Math.PI);
+            cr.fillPreserve();
+            if (hasHandleColor && handleBorderWidth) {
+                Clutter.cairo_set_source_color(cr, handleBorderColor);
+                cr.setLineWidth(handleBorderWidth);
+                cr.stroke();
+            }
+        } else {
+            if (this._value <= this._override_value)
+                Clutter.cairo_set_source_color(cr, sliderActiveColor);
+            else
+                Clutter.cairo_set_source_color(cr, sliderOverrideColor);
+            cr.arc(Math.floor(handleX), handleY, sliderBorderRadius, TAU * 3 / 4, TAU * 1 / 4);
+            cr.fillPreserve();
         }
         cr.$dispose();
     },
