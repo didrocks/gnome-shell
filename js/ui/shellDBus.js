@@ -148,12 +148,13 @@ var GnomeShell = new Lang.Class({
         let monitorIndex = params['monitor'] || -1;
         let label = params['label'] || undefined;
         let level = params['level'] || undefined;
+        let override = params['override'] || undefined;
 
         let icon = null;
         if (params['icon'])
             icon = Gio.Icon.new_for_string(params['icon']);
 
-        Main.osdWindowManager.show(monitorIndex, icon, label, level);
+        Main.osdWindowManager.show(monitorIndex, icon, label, level, override);
     },
 
     FocusApp: function(id) {
