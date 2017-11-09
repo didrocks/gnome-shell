@@ -101,6 +101,7 @@
     <file>ui/unlockDialog.js</file>
     <file>ui/userWidget.js</file>
     <file>ui/viewSelector.js</file>
+    <file>ui/volumeOverrideDialog.js</file>
     <file>ui/windowAttentionHandler.js</file>
     <file>ui/windowMenu.js</file>
     <file>ui/windowManager.js</file>

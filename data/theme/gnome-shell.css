@@ -225,7 +225,8 @@ StScrollBar {
     padding-bottom: .4em; }
 
 .mount-dialog-subject,
-.end-session-dialog-subject {
+.end-session-dialog-subject,
+.volume-session-dialog-subject, {
   font-size: 14pt; }
 
 /* Message Dialog */
@@ -311,6 +312,28 @@ StScrollBar {
 .end-session-dialog-app-list-item-description {
   color: #e2e2df;
   font-size: 10pt; }
+
+/* Volume Override Dialog */
+.volume-override-dialog {
+  spacing: 42px;
+  border: 1px solid rgba(238, 238, 236, 0.2); }
+
+.volume-override-dialog-layout {
+  padding-left: 17px; }
+  .volume-override-dialog-layout:rtl {
+    padding-right: 17px; }
+
+.volume-override-dialog-description {
+  width: 28em;
+  padding-bottom: 10px; }
+  .volume-override-dialog-description:rtl {
+    text-align: right; }
+
+.volume-override-dialog-icon {
+  border-radius: 5px;
+  width: 48px;
+  height: 48px;
+  background-size: contain; }
 
 /* ShellMountOperation Dialogs */
 .shell-mount-operation-icon {

@@ -33,6 +33,7 @@ const Layout = imports.ui.layout;
 const LoginManager = imports.misc.loginManager;
 const LookingGlass = imports.ui.lookingGlass;
 const NotificationDaemon = imports.ui.notificationDaemon;
+const VolumeOverrideDialog = imports.ui.volumeOverrideDialog;
 const WindowAttentionHandler = imports.ui.windowAttentionHandler;
 const Screencast = imports.ui.screencast;
 const ScreenShield = imports.ui.screenShield;
@@ -68,6 +69,7 @@ var shellAccessDialogDBusService = null;
 var shellAudioSelectionDBusService = null;
 var shellDBusService = null;
 var shellMountOpDBusService = null;
+var shellVolumeOverrideDBusService = null;
 var screenSaverDBus = null;
 var screencastService = null;
 var modalCount = 0;
@@ -127,6 +129,7 @@ function start() {
 
     shellAccessDialogDBusService = new AccessDialog.AccessDialogDBus();
     shellAudioSelectionDBusService = new AudioDeviceSelection.AudioDeviceSelectionDBus();
+    shellVolumeOverrideDBusService = new VolumeOverrideDialog.VolumeOverrideDialogDBus();
     shellDBusService = new ShellDBus.GnomeShell();
     shellMountOpDBusService = new ShellMountOperation.GnomeShellMountOpHandler();
 
