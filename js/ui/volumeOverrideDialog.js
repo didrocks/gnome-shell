@@ -163,6 +163,26 @@ var VolumeOverrideDialogDBus = new Lang.Class({
         invocation.return_value(null);
     },
 
+    Show: function() {
+        if (this._volumeOverrideDialog)
+            return;
+
+        let dialog;
+        try {
+            dialog = new VolumeOverrideDialog();
+        } catch (e) {
+            return;
+        }
+
+        dialog.connect('closed', Lang.bind(this, this._onDialogClosed));
+        dialog.connect('override-enabled', Lang.bind(this, this._onOverrideEnabled));
+        if (!dialog.open()) {
+            return;
+        }
+
+        this._volumeOverrideDialog = dialog;
+    },
+
     CloseAsync: function (params, invocation) {
         if (this._volumeOverrideDialog &&
             this._volumeOverrideDialog._sender == invocation.get_sender())

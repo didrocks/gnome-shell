@@ -161,6 +161,10 @@ var StreamSlider = new Lang.Class({
             this._updateVolume();
     },
 
+    canAmplify: function () {
+        return this._allow_amplified_volume;
+    },
+
     getIcon: function() {
         if (!this._stream)
             return null;
@@ -336,6 +340,10 @@ var VolumeMenu = new Lang.Class({
         this._input.stream = this._control.get_default_source();
     },
 
+    canAmplify: function() {
+        return this._output.canAmplify();
+    },
+
     getIcon: function() {
         return this._output.getIcon();
     },
@@ -373,10 +381,23 @@ var Indicator = new Lang.Class({
 
         this.menu.addMenuItem(this._volumeMenu);
 
+        this._num_try_more_max = 0;
         this.indicators.connect('scroll-event', Lang.bind(this, this._onScrollEvent));
     },
 
     _onScrollEvent: function(actor, event) {
+
+        let direction = event.get_scroll_direction();
+        if ((event.get_scroll_direction() == Clutter.ScrollDirection.UP) && !this._volumeMenu.canAmplify()) {
+            if (this._volumeMenu.getLevel() >= 100)
+                this._num_try_more_max++;
+            if (this._num_try_more_max > 30) {
+                Main.shellVolumeOverrideDBusService.Show();
+                this._num_try_more_max = 0;
+            }
+        } else if (direction == Clutter.ScrollDirection.DOWN)
+            this._num_try_more_max = 0;
+
         let result = this._volumeMenu.scroll(event);
         if (result == Clutter.EVENT_PROPAGATE || this.menu.actor.mapped)
             return result;
