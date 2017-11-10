@@ -383,7 +383,8 @@ var Indicator = new Lang.Class({
 
         let gicon = new Gio.ThemedIcon({ name: this._volumeMenu.getIcon() });
         let level = this._volumeMenu.getLevel();
-        Main.osdWindowManager.show(-1, gicon, null, level);
+        let overrideLevel = this._volumeMenu.getOverrideLevel();
+        Main.osdWindowManager.show(-1, gicon, null, level, overrideLevel);
         return result;
     }
 });
