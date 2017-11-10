@@ -169,9 +169,11 @@ var StreamSlider = new Lang.Class({
         if (this._stream.is_muted || volume <= 0) {
             return 'audio-volume-muted-symbolic';
         } else {
-            let n = Math.floor(3 * volume / this._control.get_vol_max_norm()) + 1;
+            let n = 3 * volume / this._control.get_vol_max_norm() + 1;
             if (n < 2)
                 return 'audio-volume-low-symbolic';
+            if (n > 4)
+                return 'audio-volume-amplified-symbolic';
             if (n >= 3)
                 return 'audio-volume-high-symbolic';
             return 'audio-volume-medium-symbolic';
